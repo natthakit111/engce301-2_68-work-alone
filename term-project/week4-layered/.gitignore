@@ -1,0 +1,46 @@
+# =====================
+# Dependencies
+# =====================
+node_modules/
+
+# =====================
+# Environment / Secrets
+# =====================
+.env
+.env.*
+!.env.example
+
+# =====================
+# Runtime data
+# =====================
+logs/
+*.log
+
+# =====================
+# Database (SQLite runtime)
+# =====================
+database/*.db
+database/*.sqlite*
+!database/schema.sql
+!database/seed.sql
+!database/migrations/
+
+# =====================
+# Build artifacts
+# =====================
+dist/
+build/
+
+# =====================
+# Test / Coverage
+# =====================
+coverage/
+.nyc_output/
+
+# =====================
+# OS / Editor
+# =====================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

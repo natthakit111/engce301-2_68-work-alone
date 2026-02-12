@@ -31,9 +31,11 @@ async function fetchTasks() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
-        allTasks = data.tasks;
+        const result = await response.json();
+        // allTasks = Array.isArray(data) ? data : (data.tasks || []);
+        allTasks = result.data || (Array.isArray(result) ? result : []);
         renderTasks();
+
     } catch (error) {
         console.error('Error fetching tasks:', error);
         alert('❌ Failed to load tasks. Please refresh the page.');
@@ -59,7 +61,7 @@ async function createTask(taskData) {
         }
         
         const data = await response.json();
-        allTasks.unshift(data.task); // Add to beginning
+        allTasks.unshift(data); // Add to beginning
         renderTasks();
         
         // Reset form
@@ -75,39 +77,27 @@ async function createTask(taskData) {
     }
 }
 
-async function updateTaskStatus(taskId, newStatus) {
+async function updateTaskStatus(taskId) {
     showLoading();
     try {
-        const response = await fetch(`/api/tasks/${taskId}/status`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ status: newStatus })
+        const response = await fetch(`/api/tasks/${taskId}/next-status`, {
+            method: 'PATCH'
         });
-        
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to update status');
+            const err = await response.json();
+            throw new Error(err.error || 'Update failed');
         }
-        
-        const data = await response.json();
-        
-        // Update local state
-        const index = allTasks.findIndex(t => t.id === taskId);
-        if (index !== -1) {
-            allTasks[index] = data.task;
-        }
-        
-        renderTasks();
-        showNotification(`✅ Task moved to ${newStatus.replace('_', ' ')}`, 'success');
+
+        await fetchTasks();
+
     } catch (error) {
-        console.error('Error updating status:', error);
         alert('❌ ' + error.message);
     } finally {
         hideLoading();
     }
 }
+
 
 async function deleteTask(taskId) {
     // Confirmation dialog
@@ -223,33 +213,25 @@ function createTaskCard(task, currentStatus) {
 }
 
 function createStatusButtons(taskId, currentStatus) {
-    const buttons = [];
-    
-    if (currentStatus !== 'TODO') {
-        buttons.push(`
-            <button class="btn btn-warning btn-sm" onclick="updateTaskStatus(${taskId}, 'TODO')">
-                ← To Do
+    if (currentStatus === 'TODO') {
+        return `
+            <button class="btn btn-warning btn-sm"
+                onclick="updateTaskStatus(${taskId})">
+                → In Progress
             </button>
-        `);
+        `;
     }
-    
-    if (currentStatus !== 'IN_PROGRESS') {
-        buttons.push(`
-            <button class="btn btn-warning btn-sm" onclick="updateTaskStatus(${taskId}, 'IN_PROGRESS')">
-                ${currentStatus === 'TODO' ? '→' : '←'} In Progress
-            </button>
-        `);
-    }
-    
-    if (currentStatus !== 'DONE') {
-        buttons.push(`
-            <button class="btn btn-success btn-sm" onclick="updateTaskStatus(${taskId}, 'DONE')">
+
+    if (currentStatus === 'IN_PROGRESS') {
+        return `
+            <button class="btn btn-success btn-sm"
+                onclick="updateTaskStatus(${taskId})">
                 → Done ✓
             </button>
-        `);
+        `;
     }
-    
-    return buttons.join('');
+
+    return '';
 }
 
 // ===== UTILITY FUNCTIONS =====
