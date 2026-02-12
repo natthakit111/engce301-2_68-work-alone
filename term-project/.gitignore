@@ -1,17 +1,46 @@
-# Node modules (ถ้ามีในอนาคต)
+# =====================
+# Dependencies
+# =====================
 node_modules/
 
-# Environment variables
+# =====================
+# Environment / Secrets
+# =====================
 .env
+.env.*
+!.env.example
 
-# OS files
-.DS_Store
-Thumbs.db
+# =====================
+# Runtime data
+# =====================
+logs/
+*.log
 
-# Editor files
-.vscode/
-.idea/
+# =====================
+# Database (SQLite runtime)
+# =====================
+database/*.db
+database/*.sqlite*
+!database/schema.sql
+!database/seed.sql
+!database/migrations/
 
-# Build files
+# =====================
+# Build artifacts
+# =====================
 dist/
 build/
+
+# =====================
+# Test / Coverage
+# =====================
+coverage/
+.nyc_output/
+
+# =====================
+# OS / Editor
+# =====================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
